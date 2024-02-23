@@ -1,2 +1,2 @@
 # Senior-Design-Robo-Fetch-Bot
-Autonomous egg-fetching robot designed for senior design project
+Autonomous egg-fetching robot designed with Cristian Gutierrez and Artemio Reyes for Senior Design project
