@@ -1,0 +1,39 @@
+import cv2
+import urllib.request
+import numpy as np
+import json
+import httplib2
+import time
+
+key = input("Please enter the color parameter:\n")
+if key=='b':
+    egg_color='blue'
+    l_h,l_s,l_v = 83,10,135
+    u_h,u_s,u_v = 108,111,255
+    print("Color Parameter = Blue")
+elif key=='p':
+    egg_color='pink'
+    l_h,l_s,l_v = 146,49,177
+    u_h,u_s,u_v = 172,128,255
+    print("Color Parameter = Pink")
+elif key=='u':
+    egg_color='purple'
+    l_h,l_s,l_v = 111,28,80
+    u_h,u_s,u_v = 156,99,220
+    print("Color Parameter = Purple")
+elif key=='o':
+    egg_color = 'orange'
+    l_h,l_s,l_v = 0,0,163
+    u_h,u_s,u_v = 23,95,255
+    print("Color Parameter = Purple")
+elif key=='g':
+    egg_color = 'green'
+    l_h,l_s,l_v = 28,0,187
+    u_h,u_s,u_v = 83,69,255
+    print("Color Parameter = Green")
+elif key=='r':
+    egg_color = 'red'
+    l_h,l_s,l_v = 29,0,12
+    u_h,u_s,u_v = 68,82,187
+    print("Color Parameter = Red")
+
