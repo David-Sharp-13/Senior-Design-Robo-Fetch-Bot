@@ -1,0 +1,101 @@
+'''Color Detection to Detect Specific Colors based on HSV Parameters'''
+
+import cv2
+import urllib.request
+import numpy as np
+import json
+import httplib2
+ 
+def nothing(x):
+    pass
+
+#Extra loop to filter out the data to be sent a singular time when there is a bool from the ESP to look for the egg's color
+ 
+#Change the IP address below according to the
+#IP shown in the Serial monitor of Arduino code
+http = httplib2.Http()
+url='http://192.168.4.1/cam-lo.jpg'
+#ESP32_IP = "192.168.4.1"
+#ESP32_PORT = 55555
+ 
+cv2.namedWindow("live transmission", cv2.WINDOW_AUTOSIZE)
+ 
+# Blue Egg
+#egg_color = 'blue'
+#l_h,l_s,l_v = 83,10,135
+#u_h,u_s,u_v = 108,111,255
+
+# Orange Egg
+#egg_color = 'orange'
+#l_h,l_s,l_v = 0,0,163
+#u_h,u_s,u_v = 23,95,255
+
+# Green Egg
+#egg_color = 'green'
+#l_h,l_s,l_v = 83,10,135
+#u_h,u_s,u_v = 108,111,255
+
+# Purple Egg
+#egg_color = 'purple'
+#l_h,l_s,l_v = 120,29,104
+#u_h,u_s,u_v = 156,116,255
+
+# Pink Egg
+egg_color = 'pink'
+l_h,l_s,l_v = 146,0,121
+u_h,u_s,u_v = 184,114,255
+
+ 
+while True:
+    img_resp=urllib.request.urlopen(url)
+    imgnp=np.array(bytearray(img_resp.read()),dtype=np.uint8)
+    frame=cv2.imdecode(imgnp,-1)
+    
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    l_b = np.array([l_h,l_s,l_v])
+    u_b = np.array([u_h,u_s,u_v]) 
+
+    cx = 0
+    cy = 0
+    
+    mask = cv2.inRange(hsv, l_b, u_b)
+
+    cnts, _ = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+    for c in cnts:
+        area=cv2.contourArea(c)
+        if area>300:
+            cv2.drawContours(frame,[c],-1,(255,0,0),3)
+            M=cv2.moments(c)
+            cx=int (M["m10"]/M["m00"])
+            cy=int (M["m01"]/M["m00"])
+
+            cv2.circle(frame, (cx,cy),7,(255,255,255),-1)
+            cv2.putText(frame,egg_color,(cx-20, cy-20),cv2.FONT_HERSHEY_SIMPLEX,1, (0,0,255),2)
+            
+    res = cv2.bitwise_and(frame, frame, mask=mask)
+
+    x_egg = cx
+    y_egg = cy
+    print("X Coordinate = ", x_egg)
+    print("Y Coordinate = ", y_egg)
+ 
+    cv2.imshow("live transmission", frame)
+    cv2.imshow("mask", mask)
+    cv2.imshow("res", res)
+    key=cv2.waitKey(5)
+    if key==ord('q'):
+        break
+
+
+    # this is to send the data to the ESP32-CAM
+    url_json = 'http://192.168.4.1/jcoord'   
+    data = {'centerX': x_egg, 'centerY': y_egg}
+    headers={'Content-Type': 'application/json; charset=UTF-8'}
+    response, content = http.request(url_json, 'POST', headers=headers, body=json.dumps(data))
+    # print the response from the ESP32-CAM to debug the communication
+    print (response)
+    print (content)
+    
+cv2.destroyAllWindows()
